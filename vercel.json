@@ -1,6 +1,6 @@
 {
-  "buildCommand": "npm install && npm run build",
-  "devCommand": "npm run dev",
-  "outputDirectory": "dist/public",
+"buildCommand": "cd client && npm install && npm run build"
+"devCommand": "npm run dev",
+"outputDirectory": "client/dist"
   "framework": null
 }
