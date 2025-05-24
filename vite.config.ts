@@ -2,21 +2,16 @@ import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import path from "path";
 import runtimeErrorOverlay from "@replit/vite-plugin-runtime-error-modal";
+import cartographer from "@replit/vite-plugin-cartographer"; // <-- importa direttamente
 
-// Risolvi il problema dei percorsi utilizzando process.cwd()
 const basePath = process.cwd();
 
 export default defineConfig({
   plugins: [
     react(),
     runtimeErrorOverlay(),
-    ...(process.env.NODE_ENV !== "production" &&
-    process.env.REPL_ID !== undefined
-      ? [
-          await import("@replit/vite-plugin-cartographer").then((m) =>
-            m.cartographer(),
-          ),
-        ]
+    ...(process.env.NODE_ENV !== "production" && process.env.REPL_ID !== undefined
+      ? [cartographer()]
       : []),
   ],
   resolve: {
@@ -32,3 +27,4 @@ export default defineConfig({
     emptyOutDir: true,
   },
 });
+
