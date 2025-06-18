@@ -103,7 +103,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Email verification endpoints sono già implementati in auth.ts
+  // Email verification endpoints are already implemented in auth.ts
   
   // Get user's current badge
   app.get("/api/users/:userId/badge", async (req, res) => {
@@ -196,7 +196,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
   
-  // Admin endpoint per recuperare tutti gli utenti
+  // Admin endpoint to retrieve all users
   app.get("/api/admin/users", async (req, res) => {
     if (!req.isAuthenticated()) {
       console.log("Accesso non autenticato all'endpoint /api/admin/users");

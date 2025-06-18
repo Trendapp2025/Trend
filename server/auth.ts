@@ -24,9 +24,9 @@ async function hashPassword(password: string) {
 }
 
 async function comparePasswords(supplied: string, stored: string) {
-  // Gestione speciale per l'admin con la password hardcoded
+  // Special handling for the admin with a hardcoded password
   if (stored === '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8.0123456789abcdef') {
-    // Hash SHA256 di "password"
+    // SHA256 hash of "password"
     return supplied === 'password';
   }
 
@@ -76,7 +76,7 @@ export function setupAuth(app: Express) {
 
   app.post("/api/register", async (req, res, next) => {
     try {
-      // Controllo se l'username o l'email esistono già
+      // Check if the username or email already exists
       const existingUser = await storage.getUserByUsername(req.body.username);
       if (existingUser) {
         return res.status(400).json({ error: "Username already exists" });
@@ -89,27 +89,27 @@ export function setupAuth(app: Express) {
         }
       }
 
-      // Crea l'utente
+      // Create the user
       const user = await storage.createUser({
         ...req.body,
         password: await hashPassword(req.body.password),
       });
 
-      // Se l'email è presente, invia l'email di verifica
+      // If email is present, send verification email
       if (req.body.email) {
         await sendVerificationEmail(user.id, req.body.email);
         console.log(`Verification email sent to ${req.body.email} for user ${user.id}`);
       }
 
-      // Invia una notifica all'amministratore per il nuovo utente registrato
+      // Send a notification to the admin for the new registered user
       try {
         await sendNewUserNotification(user.id, user.username, req.body.email || "");
       } catch (error) {
         console.error('Error sending admin notification:', error);
-        // Non blocchiamo il processo di registrazione se la notifica fallisce
-      }
+        // Do not block the registration process if the notification fails
+            }
 
-      // Effettua il login automatico dell'utente
+            // Automatically log in the user
       req.login(user, (err) => {
         if (err) return next(err);
         res.status(201).json(user);
@@ -135,8 +135,8 @@ export function setupAuth(app: Express) {
     if (!req.isAuthenticated()) return res.sendStatus(401);
     res.json(req.user);
   });
-  
-  // Endpoint per verificare l'email via token
+
+    // Endpoint to verify email via token
   app.get("/verify-email", async (req, res) => {
     const { token } = req.query;
     
@@ -168,7 +168,7 @@ export function setupAuth(app: Express) {
       const success = await verifyEmail(token);
       
       if (success) {
-        // Se l'utente è loggato, aggiorna l'oggetto sessione
+        // If the user is logged in, update the session object
         if (req.isAuthenticated()) {
           const user = await storage.getUser(req.user.id);
           if (user) {
@@ -269,7 +269,7 @@ export function setupAuth(app: Express) {
     }
   });
   
-  // Endpoint per richiedere un nuovo token di verifica
+  // Endpoint to request a new verification token
   app.post("/api/resend-verification", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ error: "Non autorizzato" });
@@ -279,13 +279,13 @@ export function setupAuth(app: Express) {
       const success = await resendVerificationEmail(req.user.id);
       
       if (success) {
-        res.status(200).json({ message: "Email di verifica inviata con successo" });
+        res.status(200).json({ message: "Verification email sent successfully" });
       } else {
-        res.status(400).json({ error: "Impossibile inviare l'email di verifica" });
+        res.status(400).json({ error: "Unable to send verification email" });
       }
-    } catch (error) {
+        } catch (error) {
       console.error('Error resending verification email:', error);
-      res.status(500).json({ error: "Errore durante l'invio dell'email di verifica" });
+      res.status(500).json({ error: "Error sending verification email" });
     }
   });
 }

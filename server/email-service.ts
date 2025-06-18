@@ -3,14 +3,13 @@ import { db } from './db';
 import { emailVerifications, users } from '../shared/schema';
 import { eq } from 'drizzle-orm';
 import { MailService } from '@sendgrid/mail';
-
-// Imposta questo a true per simulare l'invio dell'email di verifica
-// senza effettivamente inviarla (utile per test e sviluppo)
+// Set this to true to simulate sending the verification email
+// without actually sending it (useful for testing and development)
 const SIMULATE_EMAIL_SENDING = true;
 
 let mailService: MailService | null = null;
 
-// Inizializza SendGrid se la API Key è disponibile
+// Initialize SendGrid if the API Key is available
 export function initEmailService() {
   if (process.env.SENDGRID_API_KEY) {
     mailService = new MailService();
@@ -21,20 +20,20 @@ export function initEmailService() {
   }
 }
 
-// Genera un token casuale per la verifica email
+// Generate a random token for email verification
 export function generateVerificationToken(): string {
   return randomBytes(32).toString('hex');
 }
 
-// Crea un record di verifica email e invia l'email
+// Create an email verification record and send the email
 export async function sendVerificationEmail(userId: number, email: string): Promise<boolean> {
   try {
-    // Genera un token e imposta una scadenza tra 48 ore
+    // Generate a token and set an expiry of 48 hours
     const token = generateVerificationToken();
     const expiresAt = new Date();
     expiresAt.setHours(expiresAt.getHours() + 48);
     
-    // Salva il record di verifica nel database
+    // Save the verification record in the database
     await db.insert(emailVerifications).values({
       userId,
       email,
@@ -42,7 +41,7 @@ export async function sendVerificationEmail(userId: number, email: string): Prom
       expiresAt,
     });
     
-    // Aggiorna anche i dati dell'utente
+    // Also update the user's data
     await db.update(users)
       .set({ 
         email,
@@ -51,36 +50,36 @@ export async function sendVerificationEmail(userId: number, email: string): Prom
       })
       .where(eq(users.id, userId));
     
-    // Costruisci l'URL di verifica
+    // Build the verification URL
     const baseUrl = process.env.BASE_URL || 'http://localhost:5000';
     const verificationUrl = `${baseUrl}/verify-email?token=${token}`;
     
     if (SIMULATE_EMAIL_SENDING || !mailService) {
-      // Simula l'invio dell'email e registra l'URL di verifica per scopi di test
+      // Simulate sending the email and log the verification URL for testing purposes
       console.log(`[Email Service] Verification email would be sent to ${email}`);
       console.log(`[Email Service] Verification URL: ${verificationUrl}`);
       return true;
     }
     
-    // Invia l'email utilizzando SendGrid
+    // Send the email using SendGrid
     await mailService.send({
       to: email,
-      from: 'noreply@trend.app', // Sostituisci con l'email effettiva del mittente
-      subject: 'Verifica il tuo indirizzo email per Trend',
-      text: `Grazie per esserti registrato su Trend. Per favore, verifica il tuo indirizzo email cliccando sul seguente link: ${verificationUrl}`,
+      from: 'noreply@trend.app', // Replace with the actual sender email
+      subject: 'Verify your email address for Trend',
+      text: `Thank you for registering with Trend. Please verify your email address by clicking the following link: ${verificationUrl}`,
       html: `
         <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto;">
-          <h2>Benvenuto su Trend!</h2>
-          <p>Grazie per esserti registrato. Per favore, verifica il tuo indirizzo email cliccando sul pulsante qui sotto:</p>
+          <h2>Welcome to Trend!</h2>
+          <p>Thank you for signing up. Please verify your email address by clicking the button below:</p>
           <div style="text-align: center; margin: 30px 0;">
             <a href="${verificationUrl}" style="background-color: #4F46E5; color: white; padding: 12px 24px; text-decoration: none; border-radius: 4px; font-weight: bold;">
-              Verifica la tua Email
+              Verify your Email
             </a>
           </div>
-          <p>Se il pulsante non funziona, puoi anche copiare e incollare il seguente link nel tuo browser:</p>
+          <p>If the button doesn't work, you can also copy and paste the following link into your browser:</p>
           <p style="word-break: break-all;">${verificationUrl}</p>
-          <p>Questo link scadrà tra 48 ore.</p>
-          <p>Grazie,<br>Il team di Trend</p>
+          <p>This link will expire in 48 hours.</p>
+          <p>Thank you,<br>The Trend Team</p>
         </div>
       `,
     });
@@ -92,10 +91,10 @@ export async function sendVerificationEmail(userId: number, email: string): Prom
   }
 }
 
-// Verifica un token di verifica email
+// Verify an email verification token
 export async function verifyEmail(token: string): Promise<boolean> {
   try {
-    // Trova la verifica corrispondente al token
+    // Find the verification record matching the token
     const [verification] = await db
       .select()
       .from(emailVerifications)
@@ -105,18 +104,18 @@ export async function verifyEmail(token: string): Promise<boolean> {
       return false;
     }
     
-    // Controlla se il token è scaduto
+    // Check if the token has expired
     if (new Date() > verification.expiresAt) {
       return false;
     }
     
-    // Aggiorna lo stato di verifica
+    // Update verification status
     await db
       .update(emailVerifications)
       .set({ verified: true })
       .where(eq(emailVerifications.id, verification.id));
     
-    // Aggiorna lo stato di verifica dell'utente
+    // Update the user's verification status
     await db
       .update(users)
       .set({ 
@@ -133,10 +132,10 @@ export async function verifyEmail(token: string): Promise<boolean> {
   }
 }
 
-// Richiedi una nuova email di verifica
+// Request a new verification email
 export async function resendVerificationEmail(userId: number): Promise<boolean> {
   try {
-    // Ottieni le informazioni sull'utente
+    // Get user information
     const [user] = await db
       .select()
       .from(users)
@@ -146,12 +145,12 @@ export async function resendVerificationEmail(userId: number): Promise<boolean> 
       return false;
     }
     
-    // Cancella le verifiche esistenti per l'utente
+    // Delete existing verifications for the user
     await db
       .delete(emailVerifications)
       .where(eq(emailVerifications.userId, userId));
     
-    // Invia una nuova email di verifica
+    // Send a new verification email
     return await sendVerificationEmail(userId, user.email);
   } catch (error) {
     console.error('Error resending verification email:', error);

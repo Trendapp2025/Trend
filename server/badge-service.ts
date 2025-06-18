@@ -1,91 +1,90 @@
 import { log } from './vite';
 import { storage } from './storage';
 
-// Funzione per ottenere il mese corrente nel formato YYYY-MM
+// Function to get the current month in YYYY-MM format
 function getCurrentMonth(): string {
   const now = new Date();
   const year = now.getFullYear();
-  // Mese è 0-based, quindi aggiungiamo 1 e assicuriamo il formato a due cifre
+  // Month is 0-based, so add 1 and ensure two-digit format
   const month = String(now.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 }
 
-// Funzione per ottenere il mese precedente nel formato YYYY-MM
+// Function to get the previous month in YYYY-MM format
 function getPreviousMonth(): string {
   const now = new Date();
-  // Imposta la data al primo giorno del mese corrente
+  // Set date to the first day of the current month
   now.setDate(1);
-  // Sottrai un giorno per ottenere l'ultimo giorno del mese precedente
+  // Subtract one day to get the last day of the previous month
   now.setDate(0);
-  
+
   const year = now.getFullYear();
   const month = String(now.getMonth() + 1).padStart(2, '0');
   return `${year}-${month}`;
 }
 
-// Funzione per assegnare i badge mensili basati sulle prestazioni
+// Function to assign monthly badges based on performance
 export async function assignMonthlyBadges(): Promise<void> {
   try {
     const previousMonth = getPreviousMonth();
-    log(`Assegnando badge per il mese: ${previousMonth}`, 'badge-service');
-    
-    // Assegna i badge per il mese precedente
+    log(`Assigning badges for month: ${previousMonth}`, 'badge-service');
+
+    // Assign badges for the previous month
     await storage.assignMonthlyBadges(previousMonth);
-    
-    log(`Badge assegnati con successo per il mese: ${previousMonth}`, 'badge-service');
+
+    log(`Badges successfully assigned for month: ${previousMonth}`, 'badge-service');
   } catch (error) {
-    console.error('Errore durante l\'assegnazione dei badge mensili:', error);
+    console.error('Error while assigning monthly badges:', error);
   }
 }
 
-// Funzione per calcolare quando eseguire il prossimo aggiornamento dei badge (il primo di ogni mese)
+// Function to calculate when to run the next badge update (first of every month)
 function calculateNextBadgeUpdate(): Date {
   const now = new Date();
-  
-  // Se siamo già il primo del mese, pianifica per il primo del prossimo mese
+
+  // If it's already the first of the month, schedule for 2 AM today
   if (now.getDate() === 1 && now.getHours() < 2) {
-    // Calcola tra quanto tempo alle 2 del mattino
     const target = new Date(now);
     target.setHours(2, 0, 0, 0);
     return target;
   }
-  
-  // Altrimenti, pianifica per il primo del prossimo mese alle 2 del mattino
+
+  // Otherwise, schedule for the first of next month at 2 AM
   const nextMonth = new Date(now.getFullYear(), now.getMonth() + 1, 1, 2, 0, 0, 0);
   return nextMonth;
 }
 
-// Pianifica il prossimo aggiornamento di badge
+// Schedule the next badge update
 function scheduleBadgeUpdate(): void {
   const nextUpdate = calculateNextBadgeUpdate();
   const now = new Date();
-  
-  // Calcola il tempo in millisecondi fino al prossimo aggiornamento
+
+  // Calculate the time in milliseconds until the next update
   const timeUntilNextUpdate = nextUpdate.getTime() - now.getTime();
-  
-  log(`Prossimo aggiornamento badge pianificato per: ${nextUpdate.toLocaleString()}`, 'badge-service');
-  
-  // Imposta il timeout per il prossimo aggiornamento
+
+  log(`Next badge update scheduled for: ${nextUpdate.toLocaleString()}`, 'badge-service');
+
+  // Set the timeout for the next update
   setTimeout(() => {
-    // Esegui l'assegnazione dei badge
+    // Run the badge assignment
     assignMonthlyBadges().then(() => {
-      // Pianifica il prossimo aggiornamento
+      // Schedule the next update
       scheduleBadgeUpdate();
     });
   }, timeUntilNextUpdate);
 }
 
-// Funzione principale per avviare il servizio di badge
+// Main function to start the badge service
 export function startBadgeService(): void {
-  log('Avvio del servizio di assegnazione badge mensile', 'badge-service');
-  
-  // Verifica se è il primo del mese e in caso assegna subito i badge
+  log('Starting monthly badge assignment service', 'badge-service');
+
+  // Check if it's the first of the month and assign badges immediately if so
   const now = new Date();
   if (now.getDate() === 1) {
-    log('È il primo del mese, assegnazione badge in corso...', 'badge-service');
+    log('It is the first of the month, assigning badges now...', 'badge-service');
     assignMonthlyBadges();
   }
-  
-  // Pianifica il prossimo aggiornamento
+
+  // Schedule the next update
   scheduleBadgeUpdate();
 }

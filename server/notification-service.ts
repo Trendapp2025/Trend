@@ -1,18 +1,18 @@
-import { TransactionalEmailsApi, SendSmtpEmail } from '@getbrevo/brevo';
+import { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
 
-// Configurazione del client Brevo
+// Brevo client configuration
 const apiKey = process.env.BREVO_API_KEY;
 let apiInstance: TransactionalEmailsApi;
 
-// Email dell'amministratore che riceverà le notifiche
-// Utilizzare l'indirizzo che ti verrà fornito dall'utente
+// Administrator email to receive notifications
+// Use the address provided by the user
 const ADMIN_EMAIL = "info.trend.app@gmail.com"; 
 
-// Email da cui verranno inviate le notifiche
+// Sender email for notifications
 const SENDER_EMAIL = "noreply@trend-app.com";
 const SENDER_NAME = "Trend App";
 
-// Configurazione dell'API di Brevo
+// Brevo API setup
 function setupBrevoApi() {
   if (!apiKey) {
     console.error("Brevo API key not found, user registration notifications won't be sent");
@@ -20,27 +20,32 @@ function setupBrevoApi() {
   }
 
   apiInstance = new TransactionalEmailsApi();
-  // Configurazione del client con l'apiKey
-  apiInstance.setApiKey('api-key', apiKey);
+
+  // Old way to set the API key
+  // Set up the client with the apiKey
+  // apiInstance.setApiKey('api-key', apiKey);
   
+  // Refactored to use the enum for setting the API key
+  apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, apiKey);
+
   return true;
 }
 
 /**
- * Invia una notifica via email all'amministratore quando un nuovo utente si registra
- * @param userId ID dell'utente
- * @param username Nome utente
- * @param email Indirizzo email dell'utente
+ * Sends an email notification to the administrator when a new user registers
+ * @param userId User ID
+ * @param username Username
+ * @param email User's email address
  */
 export async function sendNewUserNotification(userId: number, username: string, email: string): Promise<boolean> {
   try {
-    // Se l'API non è stata configurata, tenta di configurarla
+    // If the API is not configured, try to configure it
     if (!apiInstance && !setupBrevoApi()) {
       return false;
     }
 
-    // Data di registrazione formattata
-    const registrationDate = new Date().toLocaleString('it-IT', {
+    // Formatted registration date
+    const registrationDate = new Date().toLocaleString('en-US', {
       day: '2-digit',
       month: '2-digit',
       year: 'numeric', 
@@ -48,24 +53,24 @@ export async function sendNewUserNotification(userId: number, username: string, 
       minute: '2-digit'
     });
 
-    // Crea l'oggetto per l'invio dell'email
+    // Create the email object
     const sendSmtpEmail = new SendSmtpEmail();
     
-    sendSmtpEmail.subject = `Nuovo utente registrato su Trend: ${username}`;
+    sendSmtpEmail.subject = `New user registered on Trend: ${username}`;
     sendSmtpEmail.htmlContent = `
       <html>
         <body>
-          <h2>Nuovo utente registrato su Trend</h2>
-          <p>Un nuovo utente si è registrato all'applicazione Trend.</p>
-          <h3>Dettagli dell'utente:</h3>
+          <h2>New user registered on Trend</h2>
+          <p>A new user has registered on the Trend application.</p>
+          <h3>User details:</h3>
           <ul>
-            <li><strong>ID Utente:</strong> ${userId}</li>
-            <li><strong>Nome Utente:</strong> ${username}</li>
+            <li><strong>User ID:</strong> ${userId}</li>
+            <li><strong>Username:</strong> ${username}</li>
             <li><strong>Email:</strong> ${email}</li>
-            <li><strong>Password:</strong> [NASCOSTA PER SICUREZZA]</li>
-            <li><strong>Data di registrazione:</strong> ${registrationDate}</li>
+            <li><strong>Password:</strong> [HIDDEN FOR SECURITY]</li>
+            <li><strong>Registration date:</strong> ${registrationDate}</li>
           </ul>
-          <p>Queste informazioni sono state inviate automaticamente dal sistema.</p>
+          <p>This information was sent automatically by the system.</p>
           <p>Trend - Sentiment Market Tracker</p>
         </body>
       </html>
@@ -81,7 +86,7 @@ export async function sendNewUserNotification(userId: number, username: string, 
       name: 'Admin'
     }];
 
-    // Invia l'email
+    // Send the email
     await apiInstance.sendTransacEmail(sendSmtpEmail);
     console.log(`Notification sent: New user ${username} (${email}) registered`);
     return true;
@@ -91,7 +96,7 @@ export async function sendNewUserNotification(userId: number, username: string, 
   }
 }
 
-// Inizializzazione del servizio
+// Service initialization
 export function initNotificationService() {
   return setupBrevoApi();
 }

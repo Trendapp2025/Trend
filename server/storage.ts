@@ -21,9 +21,9 @@ export interface IStorage {
   getUserByUsername(username: string): Promise<User | undefined>;
   getUserByEmail(email: string): Promise<User | undefined>;
   createUser(user: InsertUser): Promise<User>;
-  getAllUsers(): Promise<User[]>; // Nuovo metodo per recuperare tutti gli utenti
+  getAllUsers(): Promise<User[]>; // New method to retrieve all users
   checkAndUpdateVerificationStatus(userId: number): Promise<boolean>;
-  getVerificationProgress(userId: number): Promise<{ 
+  getVerificationProgress(userId: number): Promise<{
     isVerified: boolean; 
     accountAge: { 
       months: number; 
@@ -106,7 +106,7 @@ export class DatabaseStorage implements IStorage {
     const user = await this.getUser(userId);
     if (!user) return false;
     
-    // Controlla se l'email è verificata
+    // Check if the email is verified
     const isEmailVerified = user.emailVerified || false;
     
     // Check if user has at least 15 opinions
@@ -177,7 +177,7 @@ export class DatabaseStorage implements IStorage {
     return {
       isVerified: isEmailVerified && hasEnoughOpinions,
       accountAge: {
-        months: isEmailVerified ? 1 : 0,  // Usiamo 1 come stato verificato
+        months: isEmailVerified ? 1 : 0,  // We use 1 as verified state
         isComplete: isEmailVerified
       },
       opinionCount: {
@@ -280,7 +280,7 @@ export class DatabaseStorage implements IStorage {
   }
   
   async getMonthlyTopPredictors(monthYear: string, limit: number = 5): Promise<User[]> {
-    // Ottiene i migliori predittori del mese in base all'accuratezza e al numero di predizioni
+    // Gets the top predictors of the month based on accuracy and number of predictions
     const topPredictors = await db
       .select()
       .from(users)
@@ -297,21 +297,21 @@ export class DatabaseStorage implements IStorage {
   }
   
   async assignMonthlyBadges(monthYear: string): Promise<void> {
-    // Ottiene i top 5 predittori del mese
+    // Get the top 5 predictors of the month
     const topPredictors = await this.getMonthlyTopPredictors(monthYear);
     
-    // Assegna i badge agli utenti
+    // Assign badges to users
     for (let i = 0; i < topPredictors.length; i++) {
       const user = topPredictors[i];
       const badgeType = `top${i + 1}`;
       
-      // Aggiorna il badge corrente dell'utente
+      // Update the user's current badge
       await db
-        .update(users)
-        .set({ currentBadge: badgeType })
-        .where(eq(users.id, user.id));
+      .update(users)
+      .set({ currentBadge: badgeType })
+      .where(eq(users.id, user.id));
       
-      // Aggiunge il badge alla cronologia
+      // Add the badge to the user's badge history
       await db
         .insert(userBadges)
         .values({

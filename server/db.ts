@@ -8,22 +8,21 @@ if (!process.env.DATABASE_URL) {
     "DATABASE_URL must be set. Did you forget to provision a database?",
   );
 }
-
-// Modifica l'URL per gestire correttamente la password e l'IPv6
+// Modify the URL to correctly handle password and IPv6.
 const dbUrl = new URL(process.env.DATABASE_URL);
-// Rimuovi le parentesi quadre dall'host IPv6 se presenti
+// Remove square brackets from IPv6 host if present
 const host = dbUrl.hostname.replace(/^\[(.+)\]$/, '$1');
-// Assicurati che la password sia correttamente codificata
+// Ensure the password is properly decoded
 const password = decodeURIComponent(dbUrl.password);
-// Ricostruisci l'URL con la password codificata
+// Rebuild the URL with the encoded password
 const modifiedUrl = `${dbUrl.protocol}//${dbUrl.username}:${encodeURIComponent(password)}@${host}:${dbUrl.port}${dbUrl.pathname}${dbUrl.search}`;
 
-// Configura il pool con opzioni aggiuntive per la gestione delle connessioni
+// Configure the pool with additional options for connection management
 export const pool = new Pool({ 
   connectionString: modifiedUrl,
-  max: 20, // massimo numero di connessioni nel pool
-  idleTimeoutMillis: 30000, // timeout per le connessioni inattive
-  connectionTimeoutMillis: 5000, // timeout per tentare una connessione
+  max: 20, // maximum number of connections in the pool
+  idleTimeoutMillis: 30000, // timeout for idle connections
+  connectionTimeoutMillis: 5000, // timeout for connection attempts
   ssl: process.env.NODE_ENV === 'production' ? { rejectUnauthorized: false } : false
 });
 

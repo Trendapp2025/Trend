@@ -47,10 +47,10 @@ app.use((req, res, next) => {
     await storage.initializeDatabase();
     console.log("Database initialized successfully");
     
-    // Inizializza il servizio email
+    // Initialize the email service
     initEmailService();
-    
-    // Inizializza il servizio di notifica
+
+    // Initialize the notification service
     initNotificationService();
     
     // Start the sentiment updater to periodically update market sentiment

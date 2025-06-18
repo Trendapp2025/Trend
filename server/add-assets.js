@@ -7,13 +7,13 @@ async function main() {
     throw new Error('DATABASE_URL environment variable is not set.');
   }
 
-  // Modifica l'URL per gestire correttamente la password e l'IPv6
+  // Modify the URL to properly handle the password and IPv6
   const dbUrl = new URL(process.env.DATABASE_URL);
-  // Rimuovi le parentesi quadre dall'host IPv6 se presenti
+  // Remove square brackets from IPv6 host if present
   const host = dbUrl.hostname.replace(/^\[(.+)\]$/, '$1');
-  // Assicurati che la password sia correttamente codificata
+  // Ensure the password is properly decoded
   const password = decodeURIComponent(dbUrl.password);
-  // Ricostruisci l'URL con la password codificata
+  // Rebuild the URL with the encoded password
   const modifiedUrl = `${dbUrl.protocol}//${dbUrl.username}:${encodeURIComponent(password)}@${host}:${dbUrl.port}${dbUrl.pathname}${dbUrl.search}`;
 
   console.log('Connecting to database...');
