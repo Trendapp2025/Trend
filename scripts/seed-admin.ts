@@ -1,4 +1,4 @@
-// Script per creare l'utente admin nel database se non esiste
+// Script to create the admin user in the database if it does not exist
 import { db } from '../server/db';
 import { users } from '../shared/schema';
 import { eq } from 'drizzle-orm';
@@ -7,7 +7,7 @@ import { promisify } from 'util';
 
 const scryptAsync = promisify(scrypt);
 
-// Stessa funzione di hash password usata in auth.ts
+// Same password hash function used in auth.ts
 async function hashPassword(password: string) {
   const salt = randomBytes(16).toString("hex");
   const buf = (await scryptAsync(password, salt, 64)) as Buffer;
@@ -16,58 +16,58 @@ async function hashPassword(password: string) {
 
 async function seedAdmin() {
   try {
-    console.log('Controllo se l\'utente admin esiste già...');
-    
-    // Verifica se l'utente admin esiste già
+    console.log('Checking if the admin user already exists...');
+
+    // Check if the admin user already exists
     const existingAdmin = await db.select()
       .from(users)
       .where(eq(users.username, 'admin'))
       .limit(1);
     
     if (existingAdmin.length > 0) {
-      console.log('L\'utente admin esiste già, nessuna operazione necessaria.');
+      console.log('The admin user already exists, no action needed.');
       return;
     }
-    
-    console.log('Creazione utente admin in corso...');
-    
-    // Definisci la password di default per l'utente admin (da modificare dopo il primo accesso)
-    const plainPassword = 'TrendAdmin2025!'; // Assicurati di cambiare questa password in produzione!
-    
-    // Alternativamente, è possibile usare la password hardcoded "password" come nell'auth.ts
-    // Questo è l'hash SHA256 per "password" specificato in auth.ts
+
+    console.log('Creating admin user...');
+
+    // Define the default password for the admin user (to be changed after first login)
+    const plainPassword = 'TrendAdmin2025!'; // Make sure to change this password in production!
+
+    // Alternatively, you can use the hardcoded "password" as in auth.ts
+    // This is the SHA256 hash for "password" specified in auth.ts
     const hardcodedHash = '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8.0123456789abcdef';
-    
-    // Hash della password usando lo stesso metodo di auth.ts
+
+    // Hash the password using the same method as in auth.ts
     const hashedPassword = await hashPassword(plainPassword);
-    
-    // Inserisci l'utente admin
+
+    // Insert the admin user
     const [adminUser] = await db.insert(users).values({
       username: 'admin',
       password: hashedPassword,
       email: 'admin@trend-app.com',
       emailVerified: true,
       isVerifiedAdvisor: true,
-      bio: 'Amministratore della piattaforma Trend',
+      bio: 'Administrator of the Trend platform',
       totalPredictions: 0,
       accuratePredictions: 0,
       accuracyPercentage: "0",
       advisorRating: "5.0"
     }).returning();
-    
-    console.log('Utente admin creato con successo!');
+
+    console.log('Admin user created successfully!');
     console.log('Username: admin');
     console.log('Password: ' + plainPassword);
-    console.log('IMPORTANTE: Cambia questa password dopo il primo accesso!');
-    
+    console.log('IMPORTANT: Change this password after the first login!');
+
   } catch (error) {
-    console.error('Errore durante la creazione dell\'utente admin:', error);
+    console.error('Error creating admin user:', error);
     process.exit(1);
   }
 }
 
-// Esegui la funzione
+// Run the function
 seedAdmin().catch(err => {
-  console.error('Errore non gestito:', err);
+  console.error('Unhandled error:', err);
   process.exit(1);
 });

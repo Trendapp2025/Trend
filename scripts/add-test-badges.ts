@@ -1,4 +1,4 @@
-// Script per aggiungere badge di test all'utente admin
+// Script that adds badges to admin user.
 import { db } from '../server/db';
 import { userBadges, users } from '../shared/schema';
 import { eq } from 'drizzle-orm';
@@ -8,26 +8,26 @@ const CURRENT_YEAR = new Date().getFullYear();
 
 async function main() {
   try {
-    console.log('Aggiunta di badge di test all\'utente admin...');
-    
-    // Trova l'utente admin
+    console.log('Add the badge to test all users admin...');
+
+    // Find the admin user
     const [adminUser] = await db.select().from(users).where(eq(users.username, ADMIN_USERNAME));
     
     if (!adminUser) {
-      console.error('Utente admin non trovato!');
+      console.error('Admin user not found!');
       process.exit(1);
     }
-    
-    // Controlla se ci sono già badge per l'utente admin
+
+    // Check if there are already badges for the admin user
     const existingBadges = await db.select().from(userBadges).where(eq(userBadges.userId, adminUser.id));
     
     if (existingBadges.length > 0) {
-      console.log(`Trovati ${existingBadges.length} badge esistenti per l'utente admin.`);
-      console.log('Operazione annullata. Se vuoi aggiungere nuovi badge, elimina prima quelli esistenti.');
+      console.log(`Found ${existingBadges.length} existing badges for the admin user.`);
+      console.log('Operation canceled. If you want to add new badges, please delete the existing ones first.');
       process.exit(0);
     }
-    
-    // Badge di esempio per gli ultimi mesi
+
+    // Sample badges for the last months
     const sampleBadges = [
       {
         userId: adminUser.id,
@@ -71,19 +71,19 @@ async function main() {
       }
     ];
     
-    // Inserisci i badge
+    // Insert the badges
     const insertedBadges = await db.insert(userBadges).values(sampleBadges).returning();
-    console.log(`Inseriti ${insertedBadges.length} badge di test.`);
-    
-    // Aggiorna il badge corrente dell'utente admin
+    console.log(`Inserted ${insertedBadges.length} test badges.`);
+
+    // Update the current badge of the admin user
     await db.update(users)
       .set({ currentBadge: 'top3' })
       .where(eq(users.id, adminUser.id));
-    
-    console.log('Badge corrente dell\'utente admin impostato a "top3"');
-    console.log('Operazione completata con successo!');
+
+    console.log('Current badge of the admin user set to "top3"');
+    console.log('Operation completed successfully!');
   } catch (error) {
-    console.error('Errore durante l\'aggiunta dei badge di test:', error);
+    console.error('Error while adding test badges:', error);
     process.exit(1);
   }
 }

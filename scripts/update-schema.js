@@ -1,12 +1,12 @@
-// Script per aggiornare lo schema del database
-import { exec } from 'child_process';
-import fs from 'fs';
+// Script to update the database schema
+import { exec } from "child_process";
+import fs from "fs";
 
-// Creiamo un file SQL temporaneo con le query necessarie
-const tempSqlPath = './temp-schema-update.sql';
+// Create a temporary SQL file with the required queries
+const tempSqlPath = "./temp-schema-update.sql";
 
 const sqlQueries = `
--- Aggiungiamo la colonna current_badge alla tabella users se non esiste
+-- Add the current_badge column to the users table if it does not exist
 DO $$ 
 BEGIN 
     IF NOT EXISTS (
@@ -17,7 +17,7 @@ BEGIN
     END IF;
 END $$;
 
--- Creiamo il tipo enum badge_type se non esiste
+-- Create the enum type badge_type if it does not exist
 DO $$ 
 BEGIN 
     IF NOT EXISTS (
@@ -27,7 +27,7 @@ BEGIN
     END IF;
 END $$;
 
--- Creare tabella user_badges se non esiste
+-- Create the user_badges table if it does not exist
 CREATE TABLE IF NOT EXISTS user_badges (
     id SERIAL PRIMARY KEY,
     user_id INTEGER NOT NULL REFERENCES users(id),
@@ -42,23 +42,23 @@ CREATE TABLE IF NOT EXISTS user_badges (
 
 fs.writeFileSync(tempSqlPath, sqlQueries);
 
-// Eseguiamo lo script SQL
+// Execute the SQL script
 const command = `PGPASSWORD="${process.env.PGPASSWORD}" psql -h ${process.env.PGHOST} -p ${process.env.PGPORT} -U ${process.env.PGUSER} -d ${process.env.PGDATABASE} -f ${tempSqlPath}`;
 
-console.log('Aggiornamento dello schema in corso...');
+console.log("Updating schema...");
 exec(command, (error, stdout, stderr) => {
-  // Rimuoviamo il file temporaneo
+  // Remove the temporary file
   fs.unlinkSync(tempSqlPath);
-  
+
   if (error) {
-    console.error(`Errore durante l'aggiornamento dello schema:`, error);
+    console.error(`Error while updating the schema:`, error);
     return;
   }
-  
+
   if (stderr) {
-    console.error(`Avvisi durante l'aggiornamento dello schema:`, stderr);
+    console.error(`Warnings during schema update:`, stderr);
   }
-  
-  console.log('Output:', stdout);
-  console.log('Schema aggiornato con successo!');
+
+  console.log("Output:", stdout);
+  console.log("Schema updated successfully!");
 });
