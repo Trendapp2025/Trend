@@ -2,7 +2,7 @@ import { pgTable, text, serial, integer, boolean, timestamp, decimal, pgEnum } f
 import { createInsertSchema } from "drizzle-zod";
 import { z } from "zod";
 
-// Enum per i tipi di badge
+// Enum for badge types
 export const badgeTypeEnum = pgEnum("badge_type", ["top1", "top2", "top3", "top4", "top5"]);
 
 // Users table
@@ -26,7 +26,7 @@ export const users = pgTable("users", {
   isVerifiedAdvisor: boolean("is_verified_advisor").default(false).notNull(),
   createdAt: timestamp("created_at").defaultNow(),
   
-  // Badge attuale dell'utente (del mese precedente)
+  // User's current badge (from the previous month)
   currentBadge: text("current_badge"),
 });
 
