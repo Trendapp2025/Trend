@@ -30,7 +30,7 @@ function setupBrevoApi() {
     // Refactored to use the enum for setting the API key
     apiInstance.setApiKey(TransactionalEmailsApiApiKeys.apiKey, apiKey);
 
-    console.log("Brevo API initialized successfully");
+    console.log("Brevo API initialized successfully - service updated");
     return true;
   } catch (error) {
     console.error("Failed to initialize Brevo API:", error);

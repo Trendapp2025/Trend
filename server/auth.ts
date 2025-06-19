@@ -6,7 +6,11 @@ import { scrypt, randomBytes, timingSafeEqual } from "crypto";
 import { promisify } from "util";
 import { storage } from "./storage";
 import { User as SelectUser } from "@shared/schema";
-import { sendVerificationEmail, verifyEmail, resendVerificationEmail } from "./email-service";
+import {
+  sendVerificationEmail,
+  verifyEmail,
+  resendVerificationEmail,
+} from "./email-service";
 import { sendNewUserNotification } from "./notification-service-final";
 
 declare global {
@@ -25,9 +29,12 @@ async function hashPassword(password: string) {
 
 async function comparePasswords(supplied: string, stored: string) {
   // Special handling for the admin with a hardcoded password
-  if (stored === '5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8.0123456789abcdef') {
+  if (
+    stored ===
+    "5e884898da28047151d0e56f8dc6292773603d0d6aabbdd62a11ef721d1542d8.0123456789abcdef"
+  ) {
     // SHA256 hash of "password"
-    return supplied === 'password';
+    return supplied === "password";
   }
 
   try {
@@ -49,7 +56,7 @@ export function setupAuth(app: Express) {
     store: storage.sessionStore,
     cookie: {
       maxAge: 24 * 60 * 60 * 1000, // 1 day
-    }
+    },
   };
 
   app.set("trust proxy", 1);
@@ -58,14 +65,14 @@ export function setupAuth(app: Express) {
   app.use(passport.session());
 
   passport.use(
-    new LocalStrategy(async (username, password, done) => {
-      const user = await storage.getUserByUsername(username);
+    new LocalStrategy(async (email, password, done) => {
+      const user = await storage.getUserByEmail(email);
       if (!user || !(await comparePasswords(password, user.password))) {
         return done(null, false);
       } else {
         return done(null, user);
       }
-    }),
+    })
   );
 
   passport.serializeUser((user, done) => done(null, user.id));
@@ -81,7 +88,7 @@ export function setupAuth(app: Express) {
       if (existingUser) {
         return res.status(400).json({ error: "Username already exists" });
       }
-      
+
       if (req.body.email) {
         const existingEmail = await storage.getUserByEmail(req.body.email);
         if (existingEmail) {
@@ -98,24 +105,30 @@ export function setupAuth(app: Express) {
       // If email is present, send verification email
       if (req.body.email) {
         await sendVerificationEmail(user.id, req.body.email);
-        console.log(`Verification email sent to ${req.body.email} for user ${user.id}`);
+        console.log(
+          `Verification email sent to ${req.body.email} for user ${user.id}`
+        );
       }
 
       // Send a notification to the admin for the new registered user
       try {
-        await sendNewUserNotification(user.id, user.username, req.body.email || "");
+        await sendNewUserNotification(
+          user.id,
+          user.username,
+          req.body.email || ""
+        );
       } catch (error) {
-        console.error('Error sending admin notification:', error);
+        console.error("Error sending admin notification:", error);
         // Do not block the registration process if the notification fails
-            }
+      }
 
-            // Automatically log in the user
+      // Automatically log in the user
       req.login(user, (err) => {
         if (err) return next(err);
         res.status(201).json(user);
       });
     } catch (error) {
-      console.error('Error during registration:', error);
+      console.error("Error during registration:", error);
       next(error);
     }
   });
@@ -136,11 +149,11 @@ export function setupAuth(app: Express) {
     res.json(req.user);
   });
 
-    // Endpoint to verify email via token
+  // Endpoint to verify email via token
   app.get("/verify-email", async (req, res) => {
     const { token } = req.query;
-    
-    if (!token || typeof token !== 'string') {
+
+    if (!token || typeof token !== "string") {
       return res.status(400).send(`
         <html>
           <head>
@@ -163,10 +176,10 @@ export function setupAuth(app: Express) {
         </html>
       `);
     }
-    
+
     try {
       const success = await verifyEmail(token);
-      
+
       if (success) {
         // If the user is logged in, update the session object
         if (req.isAuthenticated()) {
@@ -198,7 +211,7 @@ export function setupAuth(app: Express) {
             return;
           }
         }
-        
+
         return res.send(`
           <html>
             <head>
@@ -244,7 +257,7 @@ export function setupAuth(app: Express) {
         `);
       }
     } catch (error) {
-      console.error('Error verifying email:', error);
+      console.error("Error verifying email:", error);
       return res.status(500).send(`
         <html>
           <head>
@@ -268,23 +281,25 @@ export function setupAuth(app: Express) {
       `);
     }
   });
-  
+
   // Endpoint to request a new verification token
   app.post("/api/resend-verification", async (req, res) => {
     if (!req.isAuthenticated()) {
       return res.status(401).json({ error: "Non autorizzato" });
     }
-    
+
     try {
       const success = await resendVerificationEmail(req.user.id);
-      
+
       if (success) {
-        res.status(200).json({ message: "Verification email sent successfully" });
+        res
+          .status(200)
+          .json({ message: "Verification email sent successfully" });
       } else {
         res.status(400).json({ error: "Unable to send verification email" });
       }
-        } catch (error) {
-      console.error('Error resending verification email:', error);
+    } catch (error) {
+      console.error("Error resending verification email:", error);
       res.status(500).json({ error: "Error sending verification email" });
     }
   });
