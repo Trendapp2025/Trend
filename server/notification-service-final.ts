@@ -1,4 +1,8 @@
-import { TransactionalEmailsApi, SendSmtpEmail, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
+import {
+  TransactionalEmailsApi,
+  SendSmtpEmail,
+  TransactionalEmailsApiApiKeys,
+} from "@getbrevo/brevo";
 
 // Administrator email to receive notifications
 const ADMIN_EMAIL = "info.trend.app@gmail.com";
@@ -16,7 +20,9 @@ let apiInstance: TransactionalEmailsApi | null = null;
  */
 function setupBrevoApi() {
   if (!apiKey) {
-    console.error("Brevo API key not found, user registration notifications won't be sent");
+    console.error(
+      "Brevo API key not found, user registration notifications won't be sent"
+    );
     return false;
   }
 
@@ -39,8 +45,14 @@ function setupBrevoApi() {
  * @param username Username
  * @param email User's email address
  */
-export async function sendNewUserNotification(userId: number, username: string, email: string): Promise<boolean> {
-  console.log(`Attempting to send notification for new user: ${username} (${email})`);
+export async function sendNewUserNotification(
+  userId: number,
+  username: string,
+  email: string
+): Promise<boolean> {
+  console.log(
+    `Attempting to send notification for new user: ${username} (${email})`
+  );
   try {
     // If the API is not configured, try to configure it
     if (!apiInstance && !setupBrevoApi()) {
@@ -50,12 +62,12 @@ export async function sendNewUserNotification(userId: number, username: string, 
     console.log("API instance available, proceeding with notification");
 
     // Formatted registration date
-    const registrationDate = new Date().toLocaleString('en-US', {
-      day: '2-digit',
-      month: '2-digit',
-      year: 'numeric',
-      hour: '2-digit',
-      minute: '2-digit'
+    const registrationDate = new Date().toLocaleString("en-US", {
+      day: "2-digit",
+      month: "2-digit",
+      year: "numeric",
+      hour: "2-digit",
+      minute: "2-digit",
     });
 
     // Create the email object
@@ -98,27 +110,44 @@ export async function sendNewUserNotification(userId: number, username: string, 
 
     sendSmtpEmail.sender = {
       name: SENDER_NAME,
-      email: SENDER_EMAIL
+      email: SENDER_EMAIL,
     };
 
-    sendSmtpEmail.to = [{
-      email: ADMIN_EMAIL,
-      name: 'Admin'
-    }];
+    sendSmtpEmail.to = [
+      {
+        email: ADMIN_EMAIL,
+        name: "Admin",
+      },
+    ];
 
     // Send the email
     if (apiInstance) {
+      console.log(apiInstance);
       console.log("Preparing to send transactional email", sendSmtpEmail);
       try {
         const response = await apiInstance.sendTransacEmail(sendSmtpEmail);
-        console.log(`Notification sent successfully: New user ${username} (${email}) registered`, response);
+        console.log(
+          `Notification sent successfully: New user ${username} (${email}) registered`,
+          response
+        );
         return true;
       } catch (sendError: any) {
-        if (sendError.statusCode === 401 && sendError.body && sendError.body.message) {
-          console.error(`Brevo API authorization failed: ${sendError.body.message}`);
-          console.error("To resolve this issue, log in to your Brevo account and authorize the IP address at: https://app.brevo.com/security/authorised_ips");
+        if (
+          sendError.statusCode === 401 &&
+          sendError.body &&
+          sendError.body.message
+        ) {
+          console.error(
+            `Brevo API authorization failed: ${sendError.body.message}`
+          );
+          console.error(
+            "To resolve this issue, log in to your Brevo account and authorize the IP address at: https://app.brevo.com/security/authorised_ips"
+          );
         } else {
-          console.error("Error sending email:", sendError);
+          console.error(
+            "Error sending email:",
+            sendError.body.message || sendError.message || "Unknown error"
+          );
         }
         return false;
       }
@@ -126,7 +155,7 @@ export async function sendNewUserNotification(userId: number, username: string, 
     console.log("API instance not available after setup attempt");
     return false;
   } catch (error) {
-    console.error('Error sending new user notification:', error);
+    console.error("Error sending new user notification:", error);
     return false;
   }
 }

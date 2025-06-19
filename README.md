@@ -1,80 +1,80 @@
-# Trend - Applicazione per il tracciamento del sentiment di mercato
+# Trend - Market Sentiment Tracking Application
 
-## Descrizione
-Trend è un'applicazione web full-stack che permette agli utenti di tracciare, condividere e analizzare il sentiment di mercato su asset finanziari come azioni e criptovalute. Gli utenti possono registrarsi, esprimere le loro previsioni, guadagnare badge in base alla precisione e competere in una classifica mensile.
+## Description
+Trend is a full-stack web application that allows users to track, share, and analyze market sentiment on financial assets such as stocks and cryptocurrencies. Users can register, submit their predictions, earn badges based on accuracy, and compete in a monthly leaderboard.
 
-## Tecnologie utilizzate
+## Technologies Used
 - **Frontend**: React, TypeScript, Shadcn UI, TanStack Query, Zod
 - **Backend**: Node.js, Express, TypeScript
-- **Database**: PostgreSQL con Drizzle ORM
-- **Email**: Integrazione con Brevo API
+- **Database**: PostgreSQL with Drizzle ORM
+- **Email**: Integration with Brevo API
 
-## Funzionalità principali
-- Monitoraggio in tempo reale del sentiment di comunità
-- Sistema di previsioni con valutazioni percentuali
-- Badge mensili per predittori accurati
-- Profili utente con storico badge e previsioni
-- Pannello amministrativo
-- Supporto multilingua (Italiano/Inglese)
-- Tema chiaro/scuro
+## Main Features
+- Real-time community sentiment monitoring
+- Prediction system with percentage ratings
+- Monthly badges for accurate predictors
+- User profiles with badge and prediction history
+- Admin panel
+- Multilanguage support (Italian/English)
+- Light/Dark theme
 
-## Requisiti di installazione
-1. Node.js v16 o superiore
-2. PostgreSQL 14 o superiore
-3. Account Brevo per servizi email (opzionale, ma raccomandato)
+## Installation Requirements
+1. Node.js v16 or higher
+2. PostgreSQL 14 or higher
+3. Brevo account for email services (optional but recommended)
 
-## Istruzioni per l'installazione
+## Installation Instructions
 
-### Configurazione del database
+### Database Configuration
 ```bash
-# Creare un database PostgreSQL
+# Create a PostgreSQL database
 createdb trend
 
-# Impostare le variabili d'ambiente
+# Set environment variables
 export DATABASE_URL=postgresql://username:password@localhost:5432/trend
 export SESSION_SECRET=your_session_secret
 export BREVO_API_KEY=your_brevo_api_key
 ```
 
-### Installazione dipendenze
+### Install Dependencies
 ```bash
-# Installare le dipendenze
+# Install dependencies
 npm install
 
-# Eseguire la migrazione del database
+# Run database migration
 npm run db:push
 ```
 
-### Avvio dell'applicazione
+### Start the Application
 ```bash
-# Avviare il server di sviluppo
+# Start the development server
 npm run dev
 
-# Costruire per produzione
+# Build for production
 npm run build
 npm start
 ```
 
-## Struttura del progetto
-- `/client` - Codice frontend React
-- `/server` - API backend Express
-- `/shared` - Tipi e schemi condivisi
-- `/scripts` - Script di utilità
+## Project Structure
+- `/client` - React frontend code
+- `/server` - Express backend API
+- `/shared` - Shared types and schemas
+- `/scripts` - Utility scripts
 
-## Accesso all'applicazione
-L'applicazione sarà disponibile su http://localhost:5000
+## Application Access
+The application will be available at http://localhost:5000
 
-L'utente amministratore predefinito è:
+The default admin user is:
 - Username: admin
 - Password: password
 
-## Funzionalità principali
-- **Dashboard principale**: Visualizza gli asset con il loro sentiment attuale
-- **Profilo utente**: Visualizza i badge e le previsioni dell'utente
-- **Dettaglio asset**: Mostra informazioni dettagliate e consente di inserire previsioni
-- **Pannello amministrativo**: Gestione utenti e monitoraggio del sistema
-- **Supporto multilingua**: Cambia tra italiano e inglese
-- **Tema chiaro/scuro**: Personalizza l'interfaccia utente
+## Main Features
+- **Main Dashboard**: View assets with their current sentiment
+- **User Profile**: View user badges and predictions
+- **Asset Detail**: Shows detailed information and allows submitting predictions
+- **Admin Panel**: User management and system monitoring
+- **Multilanguage Support**: Switch between Italian and English
+- **Light/Dark Theme**: Customize the user interface
 
-## Licenza
-Tutti i diritti riservati.# Trend
+## License
+All rights reserved.

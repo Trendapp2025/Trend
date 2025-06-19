@@ -6,6 +6,7 @@ import { startSentimentUpdates } from "./sentiment-updater";
 import { initEmailService } from "./email-service";
 import { startBadgeService } from "./badge-service";
 import { initNotificationService } from "./notification-service-final";
+import env from "./env";
 
 const app = express();
 app.use(express.json());
@@ -46,22 +47,22 @@ app.use((req, res, next) => {
   try {
     await storage.initializeDatabase();
     console.log("Database initialized successfully");
-    
+
     // Initialize the email service
     initEmailService();
 
     // Initialize the notification service
     initNotificationService();
-    
+
     // Start the sentiment updater to periodically update market sentiment
     startSentimentUpdates(3); // Update every 3 minutes
-    
+
     // Start the badge service for monthly badge assignments
     // startBadgeService();
   } catch (error) {
     console.error("Error initializing database:", error);
   }
-  
+
   const server = await registerRoutes(app);
 
   app.use((err: any, _req: Request, res: Response, _next: NextFunction) => {
@@ -81,15 +82,35 @@ app.use((req, res, next) => {
     serveStatic(app);
   }
 
+  console.log(env.PORT);
+
   // ALWAYS serve the app on port 5000
   // this serves both the API and the client.
   // It is the only port that is not firewalled.
-  const port = process.env.PORT || 5000;
-  server.listen({
-    port,
-    host: "0.0.0.0",
-    reusePort: true,
-  }, () => {
-    log(`serving on port ${port}`);
+  const port = env.PORT || 5000;
+  // server.listen({
+  //   port,
+  //   host: "0.0.0.0",
+  //   reusePort: true,
+  // }, () => {
+  //   log(`serving on port ${port}`);
+  // });
+
+  app.listen(port, () => {
+    log(`Server is running on http://localhost:${port}`);
   });
 })();
+
+// import express from "express";
+// import env from "./env";
+
+// const app = express();
+// const port = env.PORT || 5001;
+
+// app.get("/", (req, res) => {
+//   res.send("Hello, World!");
+// });
+
+// app.listen(port, () => {
+//   console.log(`Server is running on http://localhost:${port}`);
+// });

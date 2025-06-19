@@ -1,49 +1,49 @@
-# Deploy di Trend su Railway
+# Deploy Trend on Railway
 
-## Passi per il deploy
+## Deployment Steps
 
-1. Registrati su [Railway](https://railway.app/)
+1. Sign up on [Railway](https://railway.app/)
 
-2. Dalla dashboard di Railway, clicca su "New Project" e seleziona "Deploy from GitHub repo"
+2. From the Railway dashboard, click "New Project" and select "Deploy from GitHub repo"
 
-3. Collega il tuo repository GitHub e seleziona il branch da deployare (solitamente `main`)
+3. Connect your GitHub repository and select the branch to deploy (usually `main`)
 
-4. Configura le seguenti variabili d'ambiente nel pannello "Variables":
-   - `DATABASE_URL`: Usa il servizio PostgreSQL di Railway (viene fornito automaticamente se aggiungi un database)
-   - `SESSION_SECRET`: Una stringa casuale e sicura per la sessione
-   - `BREVO_API_KEY`: La tua API key di Brevo per i servizi email
+4. Configure the following environment variables in the "Variables" panel:
+   - `DATABASE_URL`: Use Railway's PostgreSQL service (automatically provided if you add a database)
+   - `SESSION_SECRET`: A secure, random string for session management
+   - `BREVO_API_KEY`: Your Brevo API key for email services
 
-5. Aggiungi un servizio PostgreSQL cliccando su "New" → "Database" → "PostgreSQL"
+5. Add a PostgreSQL service by clicking "New" → "Database" → "PostgreSQL"
 
-6. Railway si occuperà automaticamente del build e del deploy usando le configurazioni nel file `railway.toml`
+6. Railway will automatically handle build and deployment using the configuration in the `railway.toml` file
 
-## Monitoraggio e Logs
+## Monitoring and Logs
 
-- Puoi monitorare logs e metriche dalla dashboard di Railway
-- Railway fornisce un URL per accedere all'applicazione deployata
+- You can monitor logs and metrics from the Railway dashboard
+- Railway provides a URL to access the deployed application
 
-## Risoluzione problemi
+## Troubleshooting
 
-Se incontri problemi durante il deploy:
+If you encounter issues during deployment:
 
-1. Controlla i logs nel pannello "Deployments"
-2. Verifica che tutte le variabili d'ambiente siano configurate correttamente
-3. Assicurati che il database sia stato inizializzato correttamente
+1. Check the logs in the "Deployments" panel
+2. Verify that all environment variables are configured correctly
+3. Ensure the database has been initialized properly
 
-## Deployment manuale con Railway CLI
+## Manual Deployment with Railway CLI
 
-In alternativa, puoi utilizzare la CLI di Railway per il deploy:
+Alternatively, you can use the Railway CLI for deployment:
 
 ```bash
-# Installa la Railway CLI
+# Install the Railway CLI
 npm i -g @railway/cli
 
 # Login
 railway login
 
-# Collega al progetto
+# Link to the project
 railway link
 
-# Esegui il deploy
+# Deploy
 railway up
-``` 
+```

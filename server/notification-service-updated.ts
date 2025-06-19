@@ -1,4 +1,5 @@
 import { SendSmtpEmail, TransactionalEmailsApi, TransactionalEmailsApiApiKeys } from '@getbrevo/brevo';
+import env from './env';
 
 // Administrator email to receive notifications
 const ADMIN_EMAIL = "info.trend.app@gmail.com";
@@ -8,7 +9,7 @@ const SENDER_EMAIL = "noreply@trend-app.com";
 const SENDER_NAME = "Trend App";
 
 // Brevo client configuration
-const apiKey = process.env.BREVO_API_KEY;
+const apiKey = env.BREVO_API_KEY;
 let apiInstance: TransactionalEmailsApi | null = null;
 
 /**
