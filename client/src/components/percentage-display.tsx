@@ -11,13 +11,15 @@ export default function PercentageDisplay({ value, size = "md" }: PercentageDisp
   const getPercentageDetails = () => {
     if (value > 0) {
       return {
-        label: `+${value.toFixed(2)}%`,
+        // label: `${value.toFixed(2)}%`,
+        label: '23%',
         className: "bg-green-100 text-green-800 hover:bg-green-100 dark:bg-green-800 dark:text-green-100",
         icon: <TrendingUp className={cn("mr-1", size === "sm" ? "h-3 w-3" : size === "md" ? "h-4 w-4" : "h-5 w-5")} />
       };
     } else if (value < 0) {
       return {
-        label: `${value.toFixed(2)}%`,
+        // label: `${value.toFixed(2)}%`,
+        label: '23%',
         className: "bg-red-100 text-red-800 hover:bg-red-100 dark:bg-red-800 dark:text-red-100",
         icon: <TrendingDown className={cn("mr-1", size === "sm" ? "h-3 w-3" : size === "md" ? "h-4 w-4" : "h-5 w-5")} />
       };
