@@ -13,7 +13,7 @@ import {
   DropdownMenuSeparator,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { TrendingUp, LogOut, User, Trophy, Shield } from "lucide-react";
+import { TrendingUp, LogOut, User, Trophy, Shield, Home } from "lucide-react";
 import { Link } from "wouter";
 
 export default function AppHeader() {
@@ -35,20 +35,30 @@ export default function AppHeader() {
         <div className="flex items-center space-x-2 sm:space-x-4">
           {/* Leaderboard - Testo visibile solo su schermi più grandi */}
           <Button variant="ghost" asChild size="sm" className="px-2 sm:px-3">
+            <Link href="/" className="flex items-center">
+              <Home className="h-4 w-4 sm:mr-2" />
+              <span className="hidden sm:inline">{t("nav.home")}</span>
+            </Link>
+          </Button>
+
+          <Button variant="ghost" asChild size="sm" className="px-2 sm:px-3">
             <Link href="/leaderboard" className="flex items-center">
               <Trophy className="h-4 w-4 sm:mr-2" />
               <span className="hidden sm:inline">{t("nav.leaderboard")}</span>
             </Link>
           </Button>
-          
+
           <LanguageSelectorButton />
           <ThemeToggle />
           <ShareApp variant="icon" size="sm" />
-          
+
           {user ? (
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                <Button
+                  variant="ghost"
+                  className="relative h-8 w-8 rounded-full"
+                >
                   <Avatar className="h-8 w-8">
                     <AvatarFallback className="bg-primary text-primary-foreground">
                       {user.username.charAt(0).toUpperCase()}
@@ -59,7 +69,9 @@ export default function AppHeader() {
               <DropdownMenuContent className="w-56" align="end" forceMount>
                 <DropdownMenuLabel className="font-normal">
                   <div className="flex flex-col space-y-1">
-                    <p className="text-sm font-medium leading-none">{user.username}</p>
+                    <p className="text-sm font-medium leading-none">
+                      {user.username}
+                    </p>
                   </div>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -84,7 +96,10 @@ export default function AppHeader() {
                   </DropdownMenuItem>
                 )}
                 <DropdownMenuSeparator />
-                <DropdownMenuItem className="cursor-pointer" onClick={handleLogout}>
+                <DropdownMenuItem
+                  className="cursor-pointer"
+                  onClick={handleLogout}
+                >
                   <LogOut className="mr-2 h-4 w-4" />
                   <span>{t("nav.logout")}</span>
                 </DropdownMenuItem>
@@ -101,7 +116,7 @@ export default function AppHeader() {
                   <Link href="/auth">{t("nav.register")}</Link>
                 </Button>
               </div>
-              
+
               {/* Versione mobile: Menu dropdown per login/register */}
               <DropdownMenu>
                 <DropdownMenuTrigger asChild className="sm:hidden">
